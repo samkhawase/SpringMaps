@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Data from REST API</title>
+	<style type="text/css">
+		table, th, td {
+		    border: 1px solid black;
+		}
+		th {
+		    cursor: pointer;
+		}
+		#inner {
+  			width: 50%;
+  			margin: 0 auto;
+		}
+		.tg  {border-collapse:collapse;border-spacing:0;border-color:#aaa;}
+		.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#aaa;color:#333;background-color:#fff;}
+		.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#aaa;color:#fff;background-color:#f38630;}
+		.tg .row-one{background-color:#FCFBE3}
+		.tg .row-two{vertical-align:top}
+	</style>
+</head>
+<body>
+	<br>
+	<br>
+	<div style="width:100%">
+		<div id="inner">
+			<p>
+				<table class="tg" id="LocationTable">
+				  <tr>
+				    <th class="tg-031e">Name</th>
+				    <th class="tg-031e">Location</th>
+				    <th class="tg-031e">Date Created</th>
+				  </tr>
+				</table>
+			</p>
+		</div>
+	</div>
+		<script>
+		// Code to sort the tables
+		const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
+
+		const comparer = (idx, asc) => (a, b) => ((v1, v2) => v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2))(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
+
+		document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
+		    const table = th.closest('table');
+		    Array.from(table.querySelectorAll('tr:nth-child(n+2)'))
+		        .sort(comparer(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
+		        .forEach(tr => table.appendChild(tr) );
+		})));
+
+
+		var localUrl = "http://localhost:8080/location";
+		
+		httpGetAsync(localUrl, function (responseText) {
+			
+			var json = JSON.parse(responseText)
+			var locations = json._embedded.location
+
+			var table = document.getElementById("LocationTable");
+			for (var i = locations.length - 1; i >= 0; i--) {
+
+				var row = table.insertRow(table.rows.length);			
+				var name = row.insertCell(0);
+				name.className = i %2 == 0 ? 'row-one' : 'row-two';
+				var location = row.insertCell(1);
+				location.className = i %2 == 0 ? 'row-one' : 'row-two';
+				var datetime = row.insertCell(2);
+				datetime.className = i %2 == 0 ? 'row-one' : 'row-two';
+
+				name.innerHTML = decodeURIComponent(locations[i].locationName);
+				location.innerHTML = locations[i].latitude + ' : ' + locations[i].longitude;
+				datetime.innerHTML = new Date(locations[i].timestamp);
+			}			
+
+		});
+		function httpGetAsync(theUrl, callback) {
+		    var xmlHttp = new XMLHttpRequest();
+		    xmlHttp.onreadystatechange = function() { 
+		        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+		            callback(xmlHttp.responseText);
+		    }
+		    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+		    xmlHttp.send(null);
+		}
+	</script>
+</body>
+</html>

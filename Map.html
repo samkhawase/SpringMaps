@@ -70,8 +70,6 @@
 
       function saveData() {
         var name = escape(document.getElementById('name').value);
-        var address = escape(document.getElementById('address').value);
-        var type = document.getElementById('type').value;
         var latlng = marker.getPosition();
 		var dateTime = new Date(Date.now());
 
@@ -115,7 +113,6 @@
       }
       function clearForm() {
       	document.getElementById('name').value = "";
-      	document.getElementById('address').value = "";
       }
       function doNothing () {}
 
